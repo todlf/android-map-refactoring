@@ -1,9 +1,10 @@
-package campus.tech.kakao.map.domain.model
+package campus.tech.kakao.map.data
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import campus.tech.kakao.map.domain.model.SavedSearch
 
 @Dao
 interface SavedSearchDao {
