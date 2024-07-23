@@ -37,10 +37,4 @@ class SearchDbHelper(context: Context) : SQLiteOpenHelper(context, "searchDb", n
         db?.execSQL("DROP TABLE IF EXISTS ${SearchData.SAVED_SEARCH_TABLE_NAME}")
         onCreate(db)
     }
-
-
-
-
-
-
 }

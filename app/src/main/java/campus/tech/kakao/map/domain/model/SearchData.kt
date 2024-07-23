@@ -1,6 +1,11 @@
 package campus.tech.kakao.map.domain.model
 
-data class SearchData (
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "search_table")
+data class SearchData(
+    @PrimaryKey
     val name: String,
     val address: String,
     val category: String,
@@ -19,3 +24,5 @@ data class SearchData (
         const val SAVED_SEARCH_COLUMN_NAME = "savename"
     }
 }
+
+
