@@ -223,15 +223,6 @@ class SearchActivity : AppCompatActivity() {
             searchNothing.visibility = View.GONE
         }
     }
-
-
-
-    private fun initView() {
-        itemClickSaveWord()
-        deleteWord()
-        savedWordClick()
-    }
-
 }
 
 
