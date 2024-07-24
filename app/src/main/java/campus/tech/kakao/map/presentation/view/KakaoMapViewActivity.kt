@@ -13,6 +13,9 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import campus.tech.kakao.map.R
+import campus.tech.kakao.map.databinding.ActivityKakaoMapViewBinding
+import campus.tech.kakao.map.databinding.ActivityMapErrorBinding
+import campus.tech.kakao.map.databinding.ActivitySearchBinding
 import campus.tech.kakao.map.presentation.viewmodel.KakaoMapViewModel
 import com.kakao.sdk.common.util.Utility
 import com.kakao.vectormap.KakaoMap
@@ -32,36 +35,26 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class KakaoMapViewActivity : AppCompatActivity() {
 
-    private lateinit var mapView: MapView
-    private lateinit var searchButton: Button
-    private lateinit var placeName: TextView
-    private lateinit var placeAddress: TextView
-    private lateinit var persistentBottomSheet: LinearLayout
-
+    private lateinit var binding: ActivityKakaoMapViewBinding
     private var kakaoMap: KakaoMap? = null
-
     private val viewModel: KakaoMapViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_kakao_map_view)
+        binding = ActivityKakaoMapViewBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
-        searchButton = findViewById(R.id.searchButton)
-        placeName = findViewById(R.id.placeName)
-        placeAddress = findViewById(R.id.placeAddress)
-        persistentBottomSheet = findViewById(R.id.persistent_bottom_sheet)
-        persistentBottomSheet.visibility = View.GONE
+        binding.persistentBottomSheet.visibility = View.GONE
 
         observeKakaoMapViewModel()
         initKakaoMap()
         clickSearchButton()
     }
 
-
     private fun initKakaoMap() {
 
-        mapView = findViewById(R.id.mapView)
-        mapView.start(object : MapLifeCycleCallback() {
+        binding.mapView.start(object : MapLifeCycleCallback() {
             override fun onMapDestroy() {
                 Log.e("KakaoMapViewActivity", "Map destroyed")
             }
@@ -80,18 +73,18 @@ class KakaoMapViewActivity : AppCompatActivity() {
 
     private fun observeKakaoMapViewModel() {
         viewModel.name.observe(this, Observer { name ->
-            placeName.text = name
+            binding.placeName.text = name
             mapReady()
         })
 
         viewModel.address.observe(this, Observer { address ->
-            placeAddress.text = address
+            binding.placeAddress.text = address
             mapReady()
         })
     }
 
     private fun clickSearchButton() {
-        searchButton.setOnClickListener {
+        binding.searchButton.setOnClickListener {
             Intent(this, SearchActivity::class.java).let {
                 startActivity(it)
             }
@@ -105,7 +98,7 @@ class KakaoMapViewActivity : AppCompatActivity() {
         }
     }
 
-    private fun setLabel(map: KakaoMap){
+    private fun setLabel(map: KakaoMap) {
         val position = LatLng.from(
             viewModel.yCoordinate.value ?: 37.402005,
             viewModel.xCoordinate.value ?: 127.108621
@@ -123,15 +116,15 @@ class KakaoMapViewActivity : AppCompatActivity() {
         layer?.addLabel(options)?.changeText(viewModel.name.value ?: "이름")
 
         if (viewModel.name.value == "이름") {
-            persistentBottomSheet.visibility = View.GONE
+            binding.persistentBottomSheet.visibility = View.GONE
             layer?.hideAllLabel()
         } else {
             layer?.showAllLabel()
-            persistentBottomSheet.visibility = View.VISIBLE
+            binding.persistentBottomSheet.visibility = View.VISIBLE
         }
     }
 
-    private fun moveCamera(map: KakaoMap){
+    private fun moveCamera(map: KakaoMap) {
         val position = LatLng.from(
             viewModel.yCoordinate.value ?: 37.402005,
             viewModel.xCoordinate.value ?: 127.108621
@@ -142,11 +135,11 @@ class KakaoMapViewActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        mapView.resume()
+        binding.mapView.resume()
     }
 
     override fun onPause() {
         super.onPause()
-        mapView.pause()
+        binding.mapView.pause()
     }
 }
