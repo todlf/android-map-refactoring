@@ -102,13 +102,8 @@ class SearchActivity : AppCompatActivity() {
         })
 
         searchViewModel.loadSavedWords()
-
         fetchData()
-
-        deleteSearchWord.setOnClickListener {
-            searchWord.text.clear()
-            showDb()
-        }
+        deleteWord()
 
         searchWord.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {

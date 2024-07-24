@@ -27,8 +27,10 @@ import com.kakao.vectormap.camera.CameraUpdateFactory
 import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
+import dagger.hilt.android.AndroidEntryPoint
 
 
+@AndroidEntryPoint
 class KakaoMapViewActivity : AppCompatActivity() {
 
     private lateinit var mapView: MapView
@@ -61,14 +63,6 @@ class KakaoMapViewActivity : AppCompatActivity() {
 
 
     private fun initKakaoMap() {
-        // onMapError 호출하기
-        //KakaoMapSdk.init(this, "dfsfdsdsdasfds")
-
-        var keyHash = Utility.getKeyHash(this)
-        Log.d("testt", keyHash)
-
-        val key = getString(R.string.kakao_api_key)
-        KakaoMapSdk.init(this, key)
 
         mapView = findViewById(R.id.mapView)
         mapView.start(object : MapLifeCycleCallback() {
