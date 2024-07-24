@@ -4,8 +4,15 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ActivityContext
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
-class KakaoMapViewModel(private val context: Context) : ViewModel() {
+@HiltViewModel
+class KakaoMapViewModel @Inject constructor(
+    @ApplicationContext private val context: Context
+) : ViewModel() {
 
     private val _xCoordinate = MutableLiveData<Double>()
     val xCoordinate: LiveData<Double> get() = _xCoordinate
@@ -47,8 +54,10 @@ class KakaoMapViewModel(private val context: Context) : ViewModel() {
 
     fun getData() {
         val sharedPref = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
-        _xCoordinate.value = sharedPref.getString("xCoordinate", "127.108621")?.toDoubleOrNull() ?: 127.108621
-        _yCoordinate.value = sharedPref.getString("yCoordinate", "37.402005")?.toDoubleOrNull() ?: 37.402005
+        _xCoordinate.value =
+            sharedPref.getString("xCoordinate", "127.108621")?.toDoubleOrNull() ?: 127.108621
+        _yCoordinate.value =
+            sharedPref.getString("yCoordinate", "37.402005")?.toDoubleOrNull() ?: 37.402005
 
         val sharedPref1 = context.getSharedPreferences("BottomSheet", Context.MODE_PRIVATE)
         _name.value = sharedPref1.getString("name", "이름") ?: "이름"

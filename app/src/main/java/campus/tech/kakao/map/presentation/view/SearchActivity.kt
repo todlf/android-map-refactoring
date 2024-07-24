@@ -25,13 +25,13 @@ import campus.tech.kakao.map.domain.model.SearchData
 import campus.tech.kakao.map.data.SearchDbHelper
 import campus.tech.kakao.map.data.SearchRepository
 import campus.tech.kakao.map.presentation.viewmodel.KakaoMapViewModel
-import campus.tech.kakao.map.presentation.viewmodel.KakaoMapViewModelFactory
 import campus.tech.kakao.map.presentation.viewmodel.SearchViewModel
-import campus.tech.kakao.map.presentation.viewmodel.SearchViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@AndroidEntryPoint
 class SearchActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
@@ -47,13 +47,9 @@ class SearchActivity : AppCompatActivity() {
     private var searchDataList = mutableListOf<SearchData>()
     private var savedSearchList = mutableListOf<String>()
 
-    private val searchViewModel: SearchViewModel by viewModels {
-        SearchViewModelFactory(this)
-    }
+    private val searchViewModel: SearchViewModel by viewModels()
 
-    private val kakaoMapviewModel: KakaoMapViewModel by viewModels {
-        KakaoMapViewModelFactory(this)
-    }
+    private val kakaoMapviewModel: KakaoMapViewModel by viewModels()
 
 
 

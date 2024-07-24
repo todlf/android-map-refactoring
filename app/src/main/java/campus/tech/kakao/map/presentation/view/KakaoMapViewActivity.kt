@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import campus.tech.kakao.map.R
 import campus.tech.kakao.map.presentation.viewmodel.KakaoMapViewModel
-import campus.tech.kakao.map.presentation.viewmodel.KakaoMapViewModelFactory
 import com.kakao.sdk.common.util.Utility
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
@@ -41,16 +40,11 @@ class KakaoMapViewActivity : AppCompatActivity() {
 
     private var kakaoMap: KakaoMap? = null
 
-    private val viewModel: KakaoMapViewModel by viewModels {
-        KakaoMapViewModelFactory(this)
-    }
+    private val viewModel: KakaoMapViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_kakao_map_view)
-
-        observeKakaoMapViewModel()
-        initKakaoMap()
 
         searchButton = findViewById(R.id.searchButton)
         placeName = findViewById(R.id.placeName)
@@ -58,6 +52,8 @@ class KakaoMapViewActivity : AppCompatActivity() {
         persistentBottomSheet = findViewById(R.id.persistent_bottom_sheet)
         persistentBottomSheet.visibility = View.GONE
 
+        observeKakaoMapViewModel()
+        initKakaoMap()
         clickSearchButton()
     }
 

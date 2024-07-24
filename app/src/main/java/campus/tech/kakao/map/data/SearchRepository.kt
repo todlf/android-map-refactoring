@@ -6,13 +6,20 @@ import android.util.Log
 import campus.tech.kakao.map.BuildConfig
 import campus.tech.kakao.map.domain.model.SavedSearch
 import campus.tech.kakao.map.domain.model.SearchData
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.awaitResponse
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class SearchRepository private constructor(private val db: SearchDatabase) {
+@Singleton
+class SearchRepository @Inject constructor(
+    private val searchDataDao: SearchDataDao,
+    private val savedSearchDao: SavedSearchDao
+) {
 
     private val authorization = "KakaoAK ${BuildConfig.KAKAO_REST_API_KEY}"
 
@@ -53,8 +60,14 @@ class SearchRepository private constructor(private val db: SearchDatabase) {
                             val xCoordinate = document.x.toDouble()
                             val yCoordinate = document.y.toDouble()
 
-                            db.searchDataDAO().insertSearchData(
-                                SearchData(placeName, addressName, categoryGroupName, xCoordinate, yCoordinate)
+                            searchDataDao.insertSearchData(
+                                SearchData(
+                                    placeName,
+                                    addressName,
+                                    categoryGroupName,
+                                    xCoordinate,
+                                    yCoordinate
+                                )
                             )
                         }
                     } else {
@@ -71,41 +84,26 @@ class SearchRepository private constructor(private val db: SearchDatabase) {
     }
 
     suspend fun getAllSavedWords(): List<String> {
-        return db.savedSearchDao().getAllSavedSearch().map { it.savedName }
+        return savedSearchDao.getAllSavedSearch().map { it.savedName }
     }
 
 
     suspend fun loadDb(): List<SearchData> {
-        return db.searchDataDAO().getAllSearchData()
+        return searchDataDao.getAllSearchData()
     }
 
     suspend fun deleteSavedWord(savedWord: String) {
         val savedSearch = SavedSearch(savedWord)
-        db.savedSearchDao().deleteSavedSearch(savedSearch)
+        savedSearchDao.deleteSavedSearch(savedSearch)
     }
 
     suspend fun clearTable() {
-        return db.searchDataDAO().deleteAllSearchData()
+        return searchDataDao.deleteAllSearchData()
     }
 
 
     suspend fun savePlaceName(name: String) {
         val savedSearch = SavedSearch(name)
-        db.savedSearchDao().insertSavedSearch(savedSearch)
-    }
-
-
-    companion object {
-        @Volatile
-        private var instance: SearchRepository? = null
-
-        fun getInstance(context: Context): SearchRepository {
-            return instance ?: synchronized(this) {
-                val db = SearchDatabase.getInstance(context)
-                val newInstance = SearchRepository(db)
-                instance = newInstance
-                newInstance
-            }
-        }
+        savedSearchDao.insertSavedSearch(savedSearch)
     }
 }

@@ -6,7 +6,7 @@ import androidx.room.Query
 import campus.tech.kakao.map.domain.model.SearchData
 
 @Dao
-interface SearchDataDAO {
+interface SearchDataDao {
     @Insert
     suspend fun insertSearchData(searchData: SearchData)
 

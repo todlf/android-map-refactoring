@@ -7,14 +7,21 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import campus.tech.kakao.map.data.SavedSearchDao
+import campus.tech.kakao.map.data.SearchDataDao
 import campus.tech.kakao.map.data.SearchDbHelper
 import campus.tech.kakao.map.data.SearchRepository
 import campus.tech.kakao.map.domain.model.SearchData
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class SearchViewModel(private val searchRepository: SearchRepository) : ViewModel(){
+@HiltViewModel
+class SearchViewModel @Inject constructor(
+    private val searchRepository: SearchRepository
+): ViewModel(){
     private val _searchDataList = MutableLiveData<List<SearchData>>()
     val searchDataList: LiveData<List<SearchData>> get() = _searchDataList
 
