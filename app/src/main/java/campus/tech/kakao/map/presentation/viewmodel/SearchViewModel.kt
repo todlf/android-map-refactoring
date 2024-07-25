@@ -26,6 +26,8 @@ class SearchViewModel @Inject constructor(
     private val _filteredSavedWordList = MutableLiveData<List<SearchData>>()
     val filteredSavedWordList: LiveData<List<SearchData>> get() = _filteredSavedWordList
 
+    val searchWord = MutableLiveData<String>()
+
     fun fetchData() {
         viewModelScope.launch {
             try {
@@ -62,9 +64,8 @@ class SearchViewModel @Inject constructor(
     fun filterByCategory(category: String) {
         _filteredCategoryList.value = _searchDataList.value?.filter { it.category == category }
     }
+
     fun filterBySavedWord(savedWord: String) {
         _filteredSavedWordList.value = _searchDataList.value?.filter { it.name == savedWord }
     }
-
-
 }
