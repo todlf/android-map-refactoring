@@ -63,35 +63,35 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun liveDataObserver() {
-        searchViewModel.searchDataList.observe(this, Observer { data ->
+        searchViewModel.searchDataList.observe(this) { data ->
             data?.let {
                 adapter.searchDataList = data.toMutableList()
                 showDb()
             }
-        })
+        }
 
-        searchViewModel.savedSearchList.observe(this, Observer { savedWords ->
+        searchViewModel.savedSearchList.observe(this) { savedWords ->
             savedWords?.let {
                 savedSearchAdapter.savedSearchList = savedWords.toMutableList()
                 savedSearchAdapter.notifyDataSetChanged()
             }
-        })
+        }
 
-        searchViewModel.filteredCategoryList.observe(this, Observer { filteredCategory ->
+        searchViewModel.filteredCategoryList.observe(this) { filteredCategory ->
             filteredCategory?.let {
                 adapter.searchDataList = it
                 adapter.notifyDataSetChanged()
                 showFilteredList(it)
             }
-        })
+        }
 
-        searchViewModel.filteredSavedWordList.observe(this, Observer { filteredSavedWord ->
+        searchViewModel.filteredSavedWordList.observe(this) { filteredSavedWord ->
             filteredSavedWord?.let {
                 adapter.searchDataList = it
                 adapter.notifyDataSetChanged()
                 showFilteredList(it)
             }
-        })
+        }
     }
 
     private fun showDb() {
