@@ -1,12 +1,9 @@
 package campus.tech.kakao.map.data
 
-import android.content.ContentValues
-import android.content.Context
 import android.util.Log
 import campus.tech.kakao.map.BuildConfig
 import campus.tech.kakao.map.domain.model.SavedSearch
 import campus.tech.kakao.map.domain.model.SearchData
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Retrofit

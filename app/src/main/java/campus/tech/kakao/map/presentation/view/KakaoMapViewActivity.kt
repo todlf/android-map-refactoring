@@ -1,29 +1,20 @@
 package campus.tech.kakao.map.presentation.view
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
+import androidx.databinding.DataBindingUtil
 import campus.tech.kakao.map.R
 import campus.tech.kakao.map.databinding.ActivityKakaoMapViewBinding
-import campus.tech.kakao.map.databinding.ActivityMapErrorBinding
-import campus.tech.kakao.map.databinding.ActivitySearchBinding
 import campus.tech.kakao.map.presentation.viewmodel.KakaoMapViewModel
-import com.kakao.sdk.common.util.Utility
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
-import com.kakao.vectormap.KakaoMapSdk
 import com.kakao.vectormap.LatLng
 import com.kakao.vectormap.MapLifeCycleCallback
-import com.kakao.vectormap.MapView
 import com.kakao.vectormap.camera.CameraAnimation
 import com.kakao.vectormap.camera.CameraUpdateFactory
 import com.kakao.vectormap.label.LabelOptions
@@ -41,13 +32,13 @@ class KakaoMapViewActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityKakaoMapViewBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_kakao_map_view)
+        binding.kakaoMap = this
+        binding.lifecycleOwner = this
+        binding.kakaoMapViewModel = viewModel
 
         binding.persistentBottomSheet.visibility = View.GONE
 
-        observeKakaoMapViewModel()
         initKakaoMap()
         clickSearchButton()
     }
@@ -70,19 +61,6 @@ class KakaoMapViewActivity : AppCompatActivity() {
             }
         })
     }
-
-    private fun observeKakaoMapViewModel() {
-        viewModel.name.observe(this, Observer { name ->
-            binding.placeName.text = name
-            mapReady()
-        })
-
-        viewModel.address.observe(this, Observer { address ->
-            binding.placeAddress.text = address
-            mapReady()
-        })
-    }
-
     private fun clickSearchButton() {
         binding.searchButton.setOnClickListener {
             Intent(this, SearchActivity::class.java).let {
