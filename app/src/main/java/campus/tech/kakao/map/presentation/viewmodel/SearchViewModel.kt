@@ -73,4 +73,9 @@ class SearchViewModel @Inject constructor(
             _filteredSavedWordList.value = _searchDataList.value?.filter { it.name == savedWord }
         }
     }
+
+    fun clearSearchWord() {
+        searchWord.value = ""
+        filterByCategory("")
+    }
 }

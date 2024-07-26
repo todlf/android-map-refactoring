@@ -133,8 +133,7 @@ class SearchActivity : AppCompatActivity() {
 
     private fun deleteWord() {
         binding.deleteSearchWord.setOnClickListener {
-            binding.searchWord.text.clear()
-            showFilteredList(emptyList())
+            searchViewModel.clearSearchWord()
         }
     }
 
