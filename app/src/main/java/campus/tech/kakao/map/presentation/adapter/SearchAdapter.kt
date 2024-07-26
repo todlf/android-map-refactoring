@@ -5,16 +5,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import campus.tech.kakao.map.R
 import campus.tech.kakao.map.databinding.ItemSearchBinding
 import campus.tech.kakao.map.domain.model.SearchData
 
 
-class SearchAdapter() : RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
+class SearchAdapter : ListAdapter<SearchData, SearchAdapter.ViewHolder>(SearchDataDiffCallback()) {
 
     private lateinit var itemClickListener : OnItemClickListener
-    var searchDataList: List<SearchData> = emptyList()
 
     interface OnItemClickListener{
         fun onClick(v:View,position:Int)
@@ -46,16 +48,22 @@ class SearchAdapter() : RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
         return ViewHolder(binding)
     }
 
-    override fun getItemCount(): Int {
-        return searchDataList.size
-    }
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(searchDataList[position])
+        holder.bind(getItem(position))
     }
 
     fun setItemClickListener(onItemClickListener: OnItemClickListener)
     {
         this.itemClickListener = onItemClickListener
+    }
+
+    private class SearchDataDiffCallback : DiffUtil.ItemCallback<SearchData>() {
+        override fun areItemsTheSame(oldItem: SearchData, newItem: SearchData): Boolean {
+            return oldItem.name == newItem.name && oldItem.address == newItem.address
+        }
+
+        override fun areContentsTheSame(oldItem: SearchData, newItem: SearchData): Boolean {
+            return oldItem == newItem
+        }
     }
 }

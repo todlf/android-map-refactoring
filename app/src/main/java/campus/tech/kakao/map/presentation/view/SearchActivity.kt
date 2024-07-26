@@ -6,15 +6,11 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import campus.tech.kakao.map.R
 import campus.tech.kakao.map.databinding.ActivitySearchBinding
 import campus.tech.kakao.map.presentation.adapter.SavedSearchAdapter
@@ -23,6 +19,7 @@ import campus.tech.kakao.map.domain.model.SearchData
 import campus.tech.kakao.map.presentation.viewmodel.KakaoMapViewModel
 import campus.tech.kakao.map.presentation.viewmodel.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SearchActivity : AppCompatActivity() {
@@ -67,7 +64,10 @@ class SearchActivity : AppCompatActivity() {
     private fun liveDataObserver() {
         searchViewModel.searchDataList.observe(this) { data ->
             data?.let {
-                adapter.searchDataList = data.toMutableList()
+                lifecycleScope.launch{
+                    adapter.submitList(it)
+                    updateRecyclerView(it)
+                }
                 showDb()
             }
         }
@@ -75,40 +75,48 @@ class SearchActivity : AppCompatActivity() {
         searchViewModel.savedSearchList.observe(this) { savedWords ->
             savedWords?.let {
                 savedSearchAdapter.savedSearchList = savedWords.toMutableList()
-                savedSearchAdapter.notifyDataSetChanged()
             }
         }
 
         searchViewModel.filteredCategoryList.observe(this) { filteredCategory ->
             filteredCategory?.let {
-                adapter.searchDataList = it
-                adapter.notifyDataSetChanged()
+                lifecycleScope.launch{
+                    adapter.submitList(it)
+                    updateRecyclerView(it)
+                }
                 showFilteredList(it)
             }
         }
 
         searchViewModel.filteredSavedWordList.observe(this) { filteredSavedWord ->
             filteredSavedWord?.let {
-                adapter.searchDataList = it
-                adapter.notifyDataSetChanged()
+                lifecycleScope.launch{
+                    updateRecyclerView(it)
+                }
                 showFilteredList(it)
             }
         }
     }
 
+    private fun updateRecyclerView(data: List<SearchData>) {
+        adapter.submitList(data) {
+            binding.recyclerView.scrollToPosition(0)
+            binding.recyclerView.visibility = View.VISIBLE
+        }
+    }
+
     private fun showDb() {
         if (binding.searchWord.text.isEmpty()) {
-            adapter.searchDataList = emptyList()
+            adapter.submitList(emptyList())
             binding.recyclerView.visibility = View.GONE
             binding.searchNothing.visibility = View.VISIBLE
             binding.savedSearchWordRecyclerView.visibility = View.GONE
         } else {
-            adapter.searchDataList = searchViewModel.searchDataList.value ?: emptyList()
+            adapter.submitList(searchViewModel.searchDataList.value ?: emptyList())
             binding.recyclerView.visibility = View.VISIBLE
             binding.searchNothing.visibility = View.GONE
             binding.savedSearchWordRecyclerView.visibility = View.VISIBLE
         }
-        adapter.notifyDataSetChanged()
     }
 
     private fun showFilteredList(filteredList: List<SearchData>) {
@@ -132,9 +140,7 @@ class SearchActivity : AppCompatActivity() {
 
     private fun textChangeListener() {
         binding.searchWord.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
-            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val searchTerm = s.toString()
@@ -153,7 +159,7 @@ class SearchActivity : AppCompatActivity() {
     private fun itemClickSaveWord() {
         adapter.setItemClickListener(object : SearchAdapter.OnItemClickListener {
             override fun onClick(v: View, position: Int) {
-                val searchData = adapter.searchDataList[position]
+                val searchData = adapter.currentList[position]
                 searchViewModel.saveSelectedPlaceName(searchData.name)
                 kakaoMapviewModel.saveCoordinates(searchData.x, searchData.y)
                 kakaoMapviewModel.saveToBottomSheet(searchData.name, searchData.address)
