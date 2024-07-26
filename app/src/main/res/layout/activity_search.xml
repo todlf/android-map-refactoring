@@ -10,6 +10,9 @@
         <variable
             name="searchViewModel"
             type="campus.tech.kakao.map.presentation.viewmodel.SearchViewModel" />
+        <variable
+            name="searchAdapter"
+            type="campus.tech.kakao.map.presentation.adapter.SearchAdapter" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

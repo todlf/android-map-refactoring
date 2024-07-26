@@ -5,8 +5,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import campus.tech.kakao.map.R
+import campus.tech.kakao.map.databinding.ItemSaveWordBinding
 
 class SavedSearchAdapter() : RecyclerView.Adapter<SavedSearchAdapter.ViewHolder>() {
 
@@ -18,29 +20,31 @@ class SavedSearchAdapter() : RecyclerView.Adapter<SavedSearchAdapter.ViewHolder>
         fun onSavedWordClick(savedWord: String)
     }
 
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val savedWordTextView: TextView = view.findViewById(R.id.savedWord)
-        private val deleteSavedWord: Button = view.findViewById(R.id.deleteSavedWord)
-
+    inner class ViewHolder(val binding: ItemSaveWordBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(savedWord: String) {
-            this.savedWordTextView.text = savedWord
-            deleteSavedWord.setOnClickListener {
+            binding.savedWord = savedWord
+            binding.deleteSavedWord.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     savedWordClickListener.onDeleteClick(position)
                 }
             }
-            savedWordTextView.setOnClickListener {
+            binding.savedWordTextView.setOnClickListener {
                 savedWordClickListener.onSavedWordClick(savedWord)
             }
+            binding.executePendingBindings()
         }
 
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_save_word, parent, false)
-        return ViewHolder(view)
+        val binding: ItemSaveWordBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(parent.context),
+            R.layout.item_save_word,
+            parent,
+            false
+        )
+        return ViewHolder(binding)
     }
 
     override fun getItemCount(): Int {

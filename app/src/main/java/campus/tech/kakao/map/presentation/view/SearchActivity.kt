@@ -37,6 +37,7 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_search)
+        binding.lifecycleOwner = this
         binding.search = this
         binding.searchViewModel = searchViewModel
 
@@ -154,7 +155,6 @@ class SearchActivity : AppCompatActivity() {
             override fun onClick(v: View, position: Int) {
                 val searchData = adapter.searchDataList[position]
                 searchViewModel.saveSelectedPlaceName(searchData.name)
-
                 kakaoMapviewModel.saveCoordinates(searchData.x, searchData.y)
                 kakaoMapviewModel.saveToBottomSheet(searchData.name, searchData.address)
 

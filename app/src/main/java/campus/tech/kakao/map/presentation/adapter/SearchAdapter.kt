@@ -4,8 +4,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import campus.tech.kakao.map.R
+import campus.tech.kakao.map.databinding.ItemSearchBinding
 import campus.tech.kakao.map.domain.model.SearchData
 
 
@@ -18,15 +20,10 @@ class SearchAdapter() : RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
         fun onClick(v:View,position:Int)
     }
 
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val searchName: TextView = view.findViewById(R.id.searchName)
-        private val searchAddress: TextView = view.findViewById(R.id.searchAddress)
-        private val searchCategory: TextView = view.findViewById(R.id.searchCategory)
-
+    inner class ViewHolder(val binding: ItemSearchBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(searchData: SearchData) {
-            searchName.text = searchData.name
-            searchAddress.text = searchData.address
-            searchCategory.text = searchData.category
+            binding.searchData = searchData
+            binding.executePendingBindings()
             itemView.setOnClickListener {
                 if (::itemClickListener.isInitialized) {
                     val position = bindingAdapterPosition
@@ -40,8 +37,13 @@ class SearchAdapter() : RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_search, parent, false)
-        return ViewHolder(view)
+        val binding: ItemSearchBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(parent.context),
+            R.layout.item_search,
+            parent,
+            false
+        )
+        return ViewHolder(binding)
     }
 
     override fun getItemCount(): Int {
