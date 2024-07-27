@@ -1,7 +1,5 @@
 package campus.tech.kakao.map.presentation.view
 
-import android.content.ContentValues
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -14,69 +12,42 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import campus.tech.kakao.map.BuildConfig
 import campus.tech.kakao.map.R
+import campus.tech.kakao.map.databinding.ActivitySearchBinding
 import campus.tech.kakao.map.presentation.adapter.SavedSearchAdapter
 import campus.tech.kakao.map.presentation.adapter.SearchAdapter
 import campus.tech.kakao.map.domain.model.SearchData
-import campus.tech.kakao.map.data.SearchDbHelper
-import campus.tech.kakao.map.data.SearchRepository
 import campus.tech.kakao.map.presentation.viewmodel.KakaoMapViewModel
-import campus.tech.kakao.map.presentation.viewmodel.KakaoMapViewModelFactory
 import campus.tech.kakao.map.presentation.viewmodel.SearchViewModel
-import campus.tech.kakao.map.presentation.viewmodel.SearchViewModelFactory
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SearchActivity : AppCompatActivity() {
 
-    private lateinit var recyclerView: RecyclerView
+    private lateinit var binding: ActivitySearchBinding
     private lateinit var adapter: SearchAdapter
-
-    private lateinit var searchWord: EditText
-    private lateinit var deleteSearchWord: Button
-    private lateinit var searchNothing: TextView
-
-    private lateinit var savedSearchWordRecyclerView: RecyclerView
     private lateinit var savedSearchAdapter: SavedSearchAdapter
-
-    private var searchDataList = mutableListOf<SearchData>()
-    private var savedSearchList = mutableListOf<String>()
-
-    private val searchViewModel: SearchViewModel by viewModels {
-        SearchViewModelFactory(this)
-    }
-
-    private val kakaoMapviewModel: KakaoMapViewModel by viewModels {
-        KakaoMapViewModelFactory(this)
-    }
-
-
+    private val searchViewModel: SearchViewModel by viewModels()
+    private val kakaoMapviewModel: KakaoMapViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_search)
 
-        recyclerView = findViewById(R.id.recyclerView)
-        searchWord = findViewById(R.id.searchWord)
-        deleteSearchWord = findViewById(R.id.deleteSearchWord)
-        searchNothing = findViewById(R.id.searchNothing)
-        savedSearchWordRecyclerView = findViewById(R.id.savedSearchWordRecyclerView)
-        savedSearchWordRecyclerView.visibility = View.GONE
+        binding = ActivitySearchBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
+        binding.savedSearchWordRecyclerView.visibility = View.GONE
 
         adapter = SearchAdapter()
-
-
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = adapter
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.adapter = adapter
 
         savedSearchAdapter = SavedSearchAdapter()
 
-        savedSearchWordRecyclerView.setLayoutManager(
+        binding.savedSearchWordRecyclerView.setLayoutManager(
             LinearLayoutManager(
                 this,
                 LinearLayoutManager.HORIZONTAL,
@@ -84,33 +55,81 @@ class SearchActivity : AppCompatActivity() {
             )
         )
 
-        savedSearchWordRecyclerView.adapter = savedSearchAdapter
+        binding.savedSearchWordRecyclerView.adapter = savedSearchAdapter
 
-        searchViewModel.searchDataList.observe(this, Observer { data ->
+        liveDataObserver()
+        initView()
+
+    }
+
+    private fun liveDataObserver() {
+        searchViewModel.searchDataList.observe(this) { data ->
             data?.let {
-                searchDataList = it.toMutableList()
+                adapter.searchDataList = data.toMutableList()
                 showDb()
             }
-        })
-
-        searchViewModel.savedSearchList.observe(this, Observer { savedWords ->
-            savedWords?.let {
-                savedSearchList = it.toMutableList()
-                savedSearchAdapter.savedSearchList = savedSearchList
-                savedSearchAdapter.notifyDataSetChanged()
-            }
-        })
-
-        searchViewModel.loadSavedWords()
-
-        fetchData()
-
-        deleteSearchWord.setOnClickListener {
-            searchWord.text.clear()
-            showDb()
         }
 
-        searchWord.addTextChangedListener(object : TextWatcher {
+        searchViewModel.savedSearchList.observe(this) { savedWords ->
+            savedWords?.let {
+                savedSearchAdapter.savedSearchList = savedWords.toMutableList()
+                savedSearchAdapter.notifyDataSetChanged()
+            }
+        }
+
+        searchViewModel.filteredCategoryList.observe(this) { filteredCategory ->
+            filteredCategory?.let {
+                adapter.searchDataList = it
+                adapter.notifyDataSetChanged()
+                showFilteredList(it)
+            }
+        }
+
+        searchViewModel.filteredSavedWordList.observe(this) { filteredSavedWord ->
+            filteredSavedWord?.let {
+                adapter.searchDataList = it
+                adapter.notifyDataSetChanged()
+                showFilteredList(it)
+            }
+        }
+    }
+
+    private fun showDb() {
+        if (binding.searchWord.text.isEmpty()) {
+            adapter.searchDataList = emptyList()
+            binding.recyclerView.visibility = View.GONE
+            binding.searchNothing.visibility = View.VISIBLE
+            binding.savedSearchWordRecyclerView.visibility = View.GONE
+        } else {
+            adapter.searchDataList = searchViewModel.searchDataList.value ?: emptyList()
+            binding.recyclerView.visibility = View.VISIBLE
+            binding.searchNothing.visibility = View.GONE
+            binding.savedSearchWordRecyclerView.visibility = View.VISIBLE
+        }
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun showFilteredList(filteredList: List<SearchData>) {
+        if (filteredList.isEmpty()) {
+            binding.recyclerView.visibility = View.GONE
+            binding.searchNothing.visibility = View.VISIBLE
+            binding.savedSearchWordRecyclerView.visibility = View.GONE
+        } else {
+            binding.recyclerView.visibility = View.VISIBLE
+            binding.searchNothing.visibility = View.GONE
+            binding.savedSearchWordRecyclerView.visibility = View.VISIBLE
+        }
+    }
+
+    private fun deleteWord() {
+        binding.deleteSearchWord.setOnClickListener {
+            binding.searchWord.text.clear()
+            showFilteredList(emptyList())
+        }
+    }
+
+    private fun textChangeListener() {
+        binding.searchWord.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
 
             }
@@ -118,65 +137,15 @@ class SearchActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val searchTerm = s.toString()
                 if (searchTerm.isEmpty()) {
-                    recyclerView.visibility = View.GONE
-                    savedSearchWordRecyclerView.visibility = View.GONE
+                    binding.recyclerView.visibility = View.GONE
+                    binding.savedSearchWordRecyclerView.visibility = View.GONE
                 } else {
-                    filterByCategory(searchTerm)
+                    searchViewModel.filterByCategory(searchTerm)
                 }
             }
 
             override fun afterTextChanged(s: Editable?) {}
         })
-        itemClickSaveWord()
-        savedWordClick()
-    }
-
-    private fun fetchData() {
-        lifecycleScope.launch {
-            try {
-                searchViewModel.fetchData()
-            } catch (e: Exception) {
-                Log.e("fetchDataError", "Search Activity fetchData error!")
-            }
-        }
-    }
-    private fun showDb() {
-        if (searchWord.text.isEmpty()) {
-            adapter.searchDataList = emptyList()
-            recyclerView.visibility = View.GONE
-            searchNothing.visibility = View.VISIBLE
-            savedSearchWordRecyclerView.visibility = View.GONE
-        } else {
-            adapter.searchDataList = searchDataList
-            recyclerView.visibility = View.VISIBLE
-            searchNothing.visibility = View.GONE
-            savedSearchWordRecyclerView.visibility = View.VISIBLE
-        }
-        Log.e("Retrofit", "SearchDataList 찾기1: $searchDataList")
-        adapter.notifyDataSetChanged()
-    }
-
-    private fun deleteWord() {
-        deleteSearchWord.setOnClickListener {
-            searchWord.text.clear()
-            showDb()
-        }
-    }
-
-    private fun filterByCategory(category: String) {
-        val filteredList = searchDataList.filter { it.category == category }
-        adapter.searchDataList = filteredList
-        adapter.notifyDataSetChanged()
-
-        if (filteredList.isEmpty()) {
-            recyclerView.visibility = View.GONE
-            searchNothing.visibility = View.VISIBLE
-            savedSearchWordRecyclerView.visibility = View.GONE
-        } else {
-            recyclerView.visibility = View.VISIBLE
-            searchNothing.visibility = View.GONE
-            savedSearchWordRecyclerView.visibility = View.VISIBLE
-        }
     }
 
     private fun itemClickSaveWord() {
@@ -194,12 +163,11 @@ class SearchActivity : AppCompatActivity() {
         })
     }
 
-
     private fun savedWordClick() {
         savedSearchAdapter.setOnSavedWordClickListener(object :
             SavedSearchAdapter.OnSavedWordClickListener {
             override fun onSavedWordClick(savedWord: String) {
-                filterBySavedWord(savedWord)
+                searchViewModel.filterBySavedWord(savedWord)
             }
 
             override fun onDeleteClick(position: Int) {
@@ -210,28 +178,14 @@ class SearchActivity : AppCompatActivity() {
         })
     }
 
-    private fun filterBySavedWord(savedWord: String) {
-        val filteredList = searchDataList.filter { it.name == savedWord }
-        adapter.searchDataList = filteredList
-        adapter.notifyDataSetChanged()
-
-        if (filteredList.isEmpty()) {
-            recyclerView.visibility = View.GONE
-            searchNothing.visibility = View.VISIBLE
-        } else {
-            recyclerView.visibility = View.VISIBLE
-            searchNothing.visibility = View.GONE
-        }
-    }
-
-
-
     private fun initView() {
-        itemClickSaveWord()
+        searchViewModel.loadSavedWords()
+        searchViewModel.fetchData()
         deleteWord()
+        textChangeListener()
+        itemClickSaveWord()
         savedWordClick()
     }
-
 }
 
 
