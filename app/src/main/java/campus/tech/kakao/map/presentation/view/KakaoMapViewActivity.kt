@@ -57,7 +57,7 @@ class KakaoMapViewActivity : AppCompatActivity() {
         }, object : KakaoMapReadyCallback() {
             override fun onMapReady(kakaoMap: KakaoMap) {
                 this@KakaoMapViewActivity.kakaoMap = kakaoMap
-                mapReady()
+                prepareMap()
             }
         })
     }
@@ -69,7 +69,7 @@ class KakaoMapViewActivity : AppCompatActivity() {
         }
     }
 
-    private fun mapReady() {
+    private fun prepareMap() {
         kakaoMap?.let { map ->
             setLabel(map)
             moveCamera(map)

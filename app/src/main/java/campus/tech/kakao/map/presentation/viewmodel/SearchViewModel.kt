@@ -5,8 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import campus.tech.kakao.map.data.SearchRepository
-import campus.tech.kakao.map.domain.model.SearchData
+import campus.tech.kakao.map.data.repository.SearchRepository
+import campus.tech.kakao.map.data.local.search.SearchData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -29,11 +29,11 @@ class SearchViewModel @Inject constructor(
 
     val searchWord = MutableLiveData<String>()
 
-    fun fetchData() {
+    fun fetchSearchData() {
         viewModelScope.launch {
             try {
                 searchRepository.fetchApi()
-                val data = searchRepository.loadDb()
+                val data = searchRepository.loadAllSearchData()
                 _searchDataList.value = data
             } catch (e: Exception) {
                 Log.e("fetchDataError", "fetchData error!")

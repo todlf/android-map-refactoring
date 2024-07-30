@@ -3,15 +3,13 @@ package campus.tech.kakao.map.presentation.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.databinding.DataBindingUtil
-import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import campus.tech.kakao.map.R
 import campus.tech.kakao.map.databinding.ItemSearchBinding
-import campus.tech.kakao.map.domain.model.SearchData
+import campus.tech.kakao.map.data.local.search.SearchData
 
 
 class SearchAdapter : ListAdapter<SearchData, SearchAdapter.ViewHolder>(SearchDataDiffCallback()) {

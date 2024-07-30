@@ -1,33 +1,29 @@
-package campus.tech.kakao.map.data
+package campus.tech.kakao.map.data.repository
 
 import android.util.Log
 import campus.tech.kakao.map.BuildConfig
-import campus.tech.kakao.map.domain.model.SavedSearch
-import campus.tech.kakao.map.domain.model.SearchData
+import campus.tech.kakao.map.data.local.search.SearchDataDao
+import campus.tech.kakao.map.data.local.search.SavedSearchDao
+import campus.tech.kakao.map.data.local.search.SavedSearch
+import campus.tech.kakao.map.data.remote.RetrofitService
+import campus.tech.kakao.map.data.local.search.SearchData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import retrofit2.Retrofit
 import retrofit2.awaitResponse
-import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class SearchRepository @Inject constructor(
     private val searchDataDao: SearchDataDao,
-    private val savedSearchDao: SavedSearchDao
+    private val savedSearchDao: SavedSearchDao,
+    private val retrofitService: RetrofitService
 ) {
 
     private val authorization = "KakaoAK ${BuildConfig.KAKAO_REST_API_KEY}"
 
     suspend fun fetchApi() {
         withContext(Dispatchers.IO) {
-
-            val retrofitService = Retrofit.Builder()
-                .baseUrl("https://dapi.kakao.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(RetrofitService::class.java)
 
             val categoryGroupCodes = listOf("PM9", "CE7")
             val x = "127.05897078335246"
@@ -85,7 +81,7 @@ class SearchRepository @Inject constructor(
     }
 
 
-    suspend fun loadDb(): List<SearchData> {
+    suspend fun loadAllSearchData(): List<SearchData> {
         return searchDataDao.getAllSearchData()
     }
 

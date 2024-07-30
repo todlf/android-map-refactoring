@@ -1,9 +1,9 @@
-package campus.tech.kakao.map.data
+package campus.tech.kakao.map.data.local.search
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import campus.tech.kakao.map.domain.model.SearchData
+import campus.tech.kakao.map.data.local.search.SearchData
 
 @Dao
 interface SearchDataDao {

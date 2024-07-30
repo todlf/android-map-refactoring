@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -15,7 +14,7 @@ import campus.tech.kakao.map.R
 import campus.tech.kakao.map.databinding.ActivitySearchBinding
 import campus.tech.kakao.map.presentation.adapter.SavedSearchAdapter
 import campus.tech.kakao.map.presentation.adapter.SearchAdapter
-import campus.tech.kakao.map.domain.model.SearchData
+import campus.tech.kakao.map.data.local.search.SearchData
 import campus.tech.kakao.map.presentation.viewmodel.KakaoMapViewModel
 import campus.tech.kakao.map.presentation.viewmodel.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -56,16 +55,15 @@ class SearchActivity : AppCompatActivity() {
 
         binding.savedSearchWordRecyclerView.adapter = savedSearchAdapter
 
-        liveDataObserver()
+        observeLiveData()
         initView()
 
     }
 
-    private fun liveDataObserver() {
+    private fun observeLiveData() {
         searchViewModel.searchDataList.observe(this) { data ->
             data?.let {
                 lifecycleScope.launch{
-                    adapter.submitList(it)
                     updateRecyclerView(it)
                 }
                 showDb()
@@ -81,7 +79,6 @@ class SearchActivity : AppCompatActivity() {
         searchViewModel.filteredCategoryList.observe(this) { filteredCategory ->
             filteredCategory?.let {
                 lifecycleScope.launch{
-                    adapter.submitList(it)
                     updateRecyclerView(it)
                 }
                 showFilteredList(it)
@@ -131,13 +128,13 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun deleteWord() {
+    private fun deleteSearchWord() {
         binding.deleteSearchWord.setOnClickListener {
             searchViewModel.clearSearchWord()
         }
     }
 
-    private fun textChangeListener() {
+    private fun listenTextChanged() {
         binding.searchWord.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
@@ -155,13 +152,12 @@ class SearchActivity : AppCompatActivity() {
         })
     }
 
-    private fun itemClickSaveWord() {
+    private fun clickItemSaveWord() {
         adapter.setItemClickListener(object : SearchAdapter.OnItemClickListener {
             override fun onClick(v: View, position: Int) {
                 val searchData = adapter.currentList[position]
                 searchViewModel.saveSelectedPlaceName(searchData.name)
-                kakaoMapviewModel.saveCoordinates(searchData.x, searchData.y)
-                kakaoMapviewModel.saveToBottomSheet(searchData.name, searchData.address)
+                kakaoMapviewModel.saveKakaoMapReadyData(searchData.x, searchData.y, searchData.name, searchData.address)
 
                 val intent = Intent(this@SearchActivity, KakaoMapViewActivity::class.java)
                 startActivity(intent)
@@ -186,10 +182,10 @@ class SearchActivity : AppCompatActivity() {
 
     private fun initView() {
         searchViewModel.loadSavedWords()
-        searchViewModel.fetchData()
-        deleteWord()
-        textChangeListener()
-        itemClickSaveWord()
+        searchViewModel.fetchSearchData()
+        deleteSearchWord()
+        listenTextChanged()
+        clickItemSaveWord()
         savedWordClick()
     }
 }

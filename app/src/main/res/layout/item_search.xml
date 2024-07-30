@@ -6,11 +6,7 @@
 
         <variable
             name="searchData"
-            type="campus.tech.kakao.map.domain.model.SearchData" />
-
-        <variable
-            name="searchAdapter"
-            type="campus.tech.kakao.map.presentation.adapter.SearchAdapter" />
+            type="campus.tech.kakao.map.data.local.search.SearchData" />
 
     </data>
 

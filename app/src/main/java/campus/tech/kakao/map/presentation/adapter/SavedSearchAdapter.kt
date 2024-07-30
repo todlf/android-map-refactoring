@@ -1,16 +1,13 @@
 package campus.tech.kakao.map.presentation.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import campus.tech.kakao.map.R
 import campus.tech.kakao.map.databinding.ItemSaveWordBinding
 
-class SavedSearchAdapter() : RecyclerView.Adapter<SavedSearchAdapter.ViewHolder>() {
+class SavedSearchAdapter : RecyclerView.Adapter<SavedSearchAdapter.ViewHolder>() {
 
     private lateinit var savedWordClickListener: OnSavedWordClickListener
     var savedSearchList: MutableList<String> = mutableListOf()
